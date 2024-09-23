@@ -110,7 +110,7 @@ export default function Dashboard() {
                 Notification
               </span>
             </li> */}
-            {/* <li className="cursor-pointer flex font-bold items-center" onClick={()=>setPageSelect('archive')}>
+            <li className="cursor-pointer flex font-bold items-center" onClick={()=>setPageSelect('archive')}>
               <img
                 className="h-6 mr-5"
                 src={`/archive-${
@@ -127,7 +127,7 @@ export default function Dashboard() {
               >
                 Archive
               </span>
-            </li> */}
+            </li>
             <li className="cursor-pointer flex font-bold items-center" onClick={()=>setPageSelect('trash')}>
               <img
                 className="h-6 mr-5"

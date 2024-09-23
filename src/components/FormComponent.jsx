@@ -1,11 +1,23 @@
-import { list } from 'postcss';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { v4 as uuidv4} from 'uuid';
 
 export default function FormComponent({activeFolderId, showForm, setShowForm, setFilesList, filesList, setFolders, folders}) {
 
+    let folderOptionList = [];
+    
+    function traverseAndCollect(folderList) {
+        folderList.forEach((folder)=>{
+            if(folder.type === 'folder') {
+                folderOptionList.push([folder.name, folder.address]);
+            } if (folder.list && folder.list.length > 0) {
+                traverseAndCollect(folder.list);
+            }
+        })
+    };
+    traverseAndCollect(folders);
 
     const [fileFormData, setFileFormData] = useState({
-        id: 1,
+        id: uuidv4(),
         type: 'file',
         name: '',
         desc: '',
@@ -18,7 +30,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
     });
 
     const [folderFormData, setFolderFormData] = useState({
-        id: 1,
+        id: uuidv4(),
         type: 'folder',
         name: '',
         open: false,
@@ -46,7 +58,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
 
     const resetForm = ()=>{
         setFileFormData({
-            id: 1,
+            id: uuidv4(),
             type: 'file',
             name: '',
             desc: '',
@@ -59,7 +71,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
         });
 
         setFolderFormData({
-            id: 1,
+            id: uuidv4(),
             type: 'folder',
             name: '',
             open: false,
@@ -78,15 +90,18 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
         searchFolder(structureToUpdate, activeFolderId, fileFormData);
         setFolders(structureToUpdate);
         console.log(folders);
+        resetForm();
         setShowForm({file: false, folder: false, notebook: false});
     }
 
     function searchFolder(folderStructure, id, data) {
+        console.log(folderStructure);
         folderStructure.forEach((item)=>{
             if(item.type === 'folder') {
                 if(item.id === id) {
                     console.log(item.name);
                     item.list.push(data);
+                    setFilesList(item.list.filter((item)=>{return item.type==='file'}));
                 } else if(item.list && item.list.length > 0){
                     searchFolder(item.list, id, data);
                 }
@@ -94,16 +109,15 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
         });
     }
 
-
     const folderFormHandler = (e)=>{
         e.preventDefault();
-        console.log("folder", folderFormData);
         resetForm();
+        // console.log("folder", folderFormData);
     }
     
-    const fileCloseFn = ()=>{
-        setShowForm({file: false, folder: false, notebook: false});
+    const formCloseFn = ()=>{
         resetForm();
+        setShowForm({file: false, folder: false, notebook: false});
     }
 
   return (
@@ -111,22 +125,22 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
     {
         showForm['file'] &&
         <div className={`w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10`}>
-            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={fileCloseFn}/>
+            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={formCloseFn}/>
             <form onSubmit={fileFormHandler} className="bg-white min-w-[30rem] h-[30rem] rounded-lg p-3 flex flex-col gap-1 justify-evenly">
                 <label htmlFor="name">Name: </label><input value={fileFormData["name"]} onChange={handleFileChange} required name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
                 <label htmlFor="desc">Description: </label><br /><textarea value={fileFormData["desc"]} onChange={handleFileChange} name="desc" id="desc" type="text" className="border border-black rounded-md h-24 p-2"/><br />
                 <label htmlFor="favourite">Favourite: <input onChange={handleFileChange} value={fileFormData["favourite"]} name="favourite" id="favourite" type="checkbox"/></label><br />
-                <label>Created: </label><input required value={fileFormData["date"]} onChange={handleFileChange} type="date" name="date" id="date" /><br />
+                <label>Created: </label><input required value={fileFormData["created"]} onChange={handleFileChange} type="date" name="created" id="created" /><br />
                 <label htmlFor="address">Folder: </label>
-                {/* <select value={fileFormData["address"]} onChange={handleFileChange} name="address" id="address" className="h-8 p-2 rounded-md">
+                <select value={fileFormData["address"]} onChange={handleFileChange} name="address" id="address" className="h-8 p-2 rounded-md">
                     {
-                        testList.map((e)=>{
+                        folderOptionList.map((e)=>{
                             return (
-                                <option value={`${e.id}`}>{e.name}</option>
+                                <option value={`${e[1]}/${e[0]}`}>{e[0]}</option>
                             )
                         })
                     }
-                </select><br /> */}
+                </select><br />
                 <button type="submit" className="border border-black rounded-lg p-2">Add File</button>
             </form>
         </div>
@@ -134,7 +148,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
     {
         showForm['folder'] && 
         <div className={`w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10`}>
-            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={fileCloseFn}/>
+            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={formCloseFn}/>
             <form onSubmit={folderFormHandler} className="bg-white min-w-[30rem] h-[30rem] rounded-lg p-3 flex flex-col gap-1 justify-evenly">
                 <label htmlFor="name">Name: </label><input value={folderFormData["name"]} onChange={handleFolderChange} required name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
                 <label htmlFor="address">Folder: </label>
@@ -150,7 +164,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
     {
         showForm['notebook'] &&
         <div className={`w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10`}>
-            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={fileCloseFn}/>
+            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={formCloseFn}/>
             <form onSubmit={fileFormHandler} className="bg-white min-w-[30rem] h-[30rem] rounded-lg p-3 flex flex-col gap-1 justify-evenly">
                 <label htmlFor="name">Name: </label><input value={formData["name"]} onChange={handleChange} required name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
                 <label htmlFor="desc">Description: </label><br /><textarea value={formData["desc"]} onChange={handleChange} name="desc" id="desc" type="text" className="border border-black rounded-md h-24 p-2"/><br />
