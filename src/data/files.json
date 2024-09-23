@@ -1,0 +1,57 @@
+[
+    {
+        "name":"Bone Joining Process",
+        "favourite": true,
+        "folder_path": "/Bone Joining Process"
+    },
+    {
+        "name":"How to bake cookies",
+        "favourite": false,
+        "folder_path": "/Bone Joining Process"
+    },
+    {
+        "name":"Technical blogs & articles",
+        "favourite": false,
+        "folder_path": "/Technical blogs & articles"
+    },
+    {
+        "name":"subject 1",
+        "favourite": true,
+        "folder_path": "/Structure of muscle fibres"
+    },
+    {
+        "name":"subject 2",
+        "favourite": false,
+        "folder_path": "/Meeting notes"
+    },
+    {
+        "name":"Structure of muscle fibres",
+        "favourite": false,
+        "folder_path": "/Structure of muscle fibres"
+    },
+    {
+        "name":"Dental implants",
+        "favourite": false,
+        "folder_path": "/Structure of muscle fibres"
+    },
+    {
+        "name":"Meeting notes",
+        "favourite": false,
+        "folder_path": "/Meeting notes"
+    },
+    {
+        "name":"Good events",
+        "favourite": false,
+        "folder_path": "/Meeting notes"
+    },
+    {
+        "name":"Watchlist",
+        "favourite": false,
+        "folder_path": "/Technical blogs & articles"
+    },
+    {
+        "name":"Magzine ideas",
+        "favourite": false,
+        "folder_path": "/Bone Joining Process"
+    }
+]

@@ -1,0 +1,54 @@
+// .mobileLoginContainer {
+//     // background-color: black;
+//     position: absolute;
+// }
+
+.mobileLoginContainer[login='1'] {
+    position: absolute;
+    height: 100%;
+    // animation: moveing 1s 1;
+    transition: 1s;
+    transform: translate(-100%, 0);
+}
+
+.mobileLoginContainer[login='2'] {
+    position: absolute;
+    height: 100%;
+    // animation: moveing 1s 1;
+    transition: 1.5s;
+    transform: translate(200%, 0);
+}
+
+#mobileOutputContent::-webkit-scrollbar {
+    display: none;
+}
+
+#mobileOutputContent {
+    scrollbar-width: none;
+}
+
+#mobilePagesList::-webkit-scrollbar {
+    display: none;
+}
+
+#mobilePagesList {
+    scrollbar-width: none;
+}
+
+:root {
+    --background: #ffffff;
+    --text-color: #000000;
+    --accent-col: #A3D1F1;
+}
+
+.files {
+    background-color: var(--accent-col);
+}
+
+.comp-background {
+    background-color: var(--background);
+}
+
+.dashboard-body {
+    color: var(--text-color);
+}
