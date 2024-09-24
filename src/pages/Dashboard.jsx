@@ -5,12 +5,14 @@ import folder_structure from '../data/folder_structure.json'
 // console.log(folder_structure);
 import Folder from "../components/Folder";
 import FileCard from "../components/FileCard";
-import { list } from "postcss";
 import FormComponent from "../components/FormComponent";
 
 export default function Dashboard() {
-  const [darkmode, setDarkmode] = useState(false); // useful because when toggle it changes/updates the UI
-  const [pageSelect, setPageSelect] = useState("home"); // pages can be home, favourite, notification, archive, trash
+  // useful because when toggle it changes/updates the UI
+  const [darkmode, setDarkmode] = useState(false); 
+  
+  // pages can be home, favourite, notification, archive, trash
+  const [pageSelect, setPageSelect] = useState("home"); 
 
   const [filesList, setFilesList] = useState([]);
   const [folders, setFolders] = useState(folder_structure);
