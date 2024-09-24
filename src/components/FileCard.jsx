@@ -2,7 +2,22 @@ import React, { useState } from "react";
 
 export default function FileCard({ fileList, darkmode, searchText }) {
   //   const [list, setList] = useState([...fileList]);
-  console.log(fileList);
+  // console.log(fileList);
+
+  function daysAgo(date) {
+
+    let testdate1 = new Date(date);
+    let testdate2 = new Date();
+
+    const diffms = Math.abs(testdate2 - testdate1);
+    const diffdays = Math.floor(diffms/(1000 * 60 * 60 * 24));
+
+    if(diffdays){
+      return `${diffdays} days ago`;
+    } else {
+      return 'Made today'
+    }
+  }
 
   return (
     <div>
@@ -20,12 +35,10 @@ export default function FileCard({ fileList, darkmode, searchText }) {
                 className="h-4"
               />
             </p>
-            <p className="text-[8px]">10 jun 24 . 1 day ago</p>
+            <p className="text-[8px]">{e.created} . {daysAgo(e.created)}</p>
             <hr className="border-[#c9c9c9] h-[1px] w-[90%] self-center my-2" />
             <p className="text-xs h-20">
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quasi
-              suscipit, provident non facere ad excepturi sunt? Pariatur
-              provident non facere
+              {e.desc.substring(0, 400)}
             </p>
             <div className="flex justify-between mt-3">
               <div className="flex space-x-3">

@@ -193,7 +193,7 @@ export default function Dashboard() {
         <div className="comp-background w-[80%] h-screen flex flex-col relative">
           <div id="top" className="flex items-center justify-between p-5">
             <h1 className="text-3xl font-bold flex items-center gap-3">
-              Welcome User, Good Evening{" "}
+              Welcome User, Good Evening
               <img
                 src={`evening${darkmode ? "-white" : ""}.png`}
                 className="h-10"

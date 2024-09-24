@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { v4 as uuidv4} from 'uuid';
 
+// console.log(new Date());
+
 export default function FormComponent({activeFolderId, showForm, setShowForm, setFilesList, filesList, setFolders, folders}) {
 
     // searching folder name
@@ -27,7 +29,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
         archive: false,
         trash: false,
         users_list: [],
-        created: '',
+        created: new Date().toISOString().substring(0, 10),
         address: ''
     });
 
@@ -72,7 +74,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
             archive: false,
             trash: false,
             users_list: [],
-            created: '',
+            created: new Date().toISOString().substring(0, 10),
             address: ''
         });
 
