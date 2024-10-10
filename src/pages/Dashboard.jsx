@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+
+import { Link, Outlet} from "react-router-dom";
+
 import DashboardContext from "../components/DashboardContext";
+
+import folder_structure from '../data/folder_structure.json'
 
 import notebook from "../data/notebook.json";
 
 export default function Dashboard() {
     // useful because when toggle it changes/updates the UI
     const [darkmode, setDarkmode] = useState(false);
+    const [folderStructure, setFolderStructure] = useState(folder_structure);
 
     // pages can be home, favourite, notification, archive, trash
     const [pageSelect, setPageSelect] = useState("home");
@@ -25,7 +30,7 @@ export default function Dashboard() {
         }
     }, [darkmode]);
 
-    let dataToShare = {darkmode};
+    let dataToShare = {darkmode, folderStructure, setFolderStructure};
 
     // const navigate = useNavigate();
 

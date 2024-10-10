@@ -1,17 +1,15 @@
 import { useDashboardContext } from '../components/DashboardContext';
 
-
-import folder_structure from '../data/folder_structure.json'
 import Folder from "../components/Folder";
 import FileCard from "../components/FileCard";
 import FormComponent from "../components/FormComponent";
-import { useState } from 'react';
+
+import { useState} from 'react';
 
 export default function Home() {
-    const { darkmode } = useDashboardContext();
+    const { darkmode, folderStructure, setFolderStructure } = useDashboardContext();
 
     const [filesList, setFilesList] = useState([]);
-    const [folders, setFolders] = useState(folder_structure);
 
     const [activeFolderId, setActiveFolderId] = useState('');
 
@@ -49,7 +47,7 @@ export default function Home() {
 
   return (
     <>
-        <FormComponent activeFolderId={activeFolderId} showForm={showForm} setShowForm={setShowForm} setFilesList={setFilesList} filesList={filesList} setFolders={setFolders} folders={folders}/>
+        <FormComponent activeFolderId={activeFolderId} showForm={showForm} setShowForm={setShowForm} setFilesList={setFilesList} setFolders={setFolderStructure} folders={folderStructure}/>
         <div id="top" className="flex items-center justify-between p-5">
             <h1 className="text-3xl font-bold flex items-center gap-3">
                 Welcome User, Good {timeOfTheDay()}
@@ -84,7 +82,7 @@ export default function Home() {
                 {/* row */}
                 <div className="flex flex-col space-y-1 h-[480px] overflow-auto">
                     {
-                    folders.filter(e=>{return e.type === 'folder'}).map((e)=>{
+                    folderStructure.filter(e=>{return e.type === 'folder'}).map((e)=>{
                         return (
                         <Folder key={e.id} folder={e} darkmode={darkmode} handleFolderClick={handleFolderClick}/>
                         )

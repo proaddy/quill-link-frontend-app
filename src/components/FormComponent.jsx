@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { v4 as uuidv4} from 'uuid';
 
-// console.log(new Date());
+import { useDashboardContext } from '../components/DashboardContext';
 
-export default function FormComponent({activeFolderId, showForm, setShowForm, setFilesList, filesList, setFolders, folders}) {
+export default function FormComponent({activeFolderId, showForm, setShowForm, setFilesList, setFolders, folders}) {
+
+    const { folderStructure, setFolderStructure } = useDashboardContext();
 
     // searching folder name
     let folderOptionList = [];
@@ -17,7 +19,7 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
             }
         })
     };
-    traverseAndCollect(folders);
+    traverseAndCollect(folderStructure);
 
     // initial state of file
     const [fileFormData, setFileFormData] = useState({
@@ -128,10 +130,10 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
     // when form is submitted for file
     const fileFormHandler = (e)=>{
         e.preventDefault();
-        const structureToUpdate = deepcopy(folders);
+        const structureToUpdate = deepcopy(folderStructure);
         searchFolderAddFile(structureToUpdate, activeFolderId, fileFormData);
-        setFolders(structureToUpdate);
-        console.log(folders);
+        setFolderStructure(structureToUpdate);
+        console.log(folderStructure);
         resetForm();
         setShowForm({file: false, folder: false, notebook: false});
     }
@@ -139,9 +141,9 @@ export default function FormComponent({activeFolderId, showForm, setShowForm, se
     // when form is submitted for folder
     const folderFormHandler = (e)=>{
         e.preventDefault();
-        const folderStructure = deepcopy(folders);
-        searchFolderAddFolder(folderStructure, activeFolderId, folderFormData);
-        setFolders(folderStructure);
+        const folder_structure = deepcopy(folderStructure);
+        searchFolderAddFolder(folder_structure, activeFolderId, folderFormData);
+        setFolderStructure(folder_structure);
         resetForm();
         setShowForm({file: false, folder: false, notebook: false});
         // console.log("folder", folderFormData);

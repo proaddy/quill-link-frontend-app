@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function FileCard({ fileList, darkmode, searchText }) {
   //   const [list, setList] = useState([...fileList]);
@@ -19,6 +20,12 @@ export default function FileCard({ fileList, darkmode, searchText }) {
     }
   }
 
+  const navigate = useNavigate();
+
+  function navigateEdit(id) {
+    navigate('/editnote', { state : {id: id}})
+  }
+
   return (
     <div>
       {fileList.filter((e)=>{return e.name.toLowerCase().includes(searchText.toLowerCase())}).map((e, i) => {
@@ -32,7 +39,8 @@ export default function FileCard({ fileList, darkmode, searchText }) {
               <img
                 src={`/pencil${darkmode ? "-white" : ""}.png`}
                 alt="pencil"
-                className="h-4"
+                className="h-4 cursor-pointer"
+                onClick={()=>navigateEdit(e.id)}
               />
             </p>
             <p className="text-[8px]">{e.created} . {daysAgo(e.created)}</p>
@@ -55,19 +63,19 @@ export default function FileCard({ fileList, darkmode, searchText }) {
                 <img
                   src={`/user-add${darkmode ? "-white" : ""}.png`}
                   alt="user-add"
-                  className="h-4"
+                  className="h-4 cursor-pointer"
                 />
               </div>
               <div className="flex space-x-3">
                 <img
                   src={`/archive${darkmode ? "-white" : ""}.png`}
                   alt="archive"
-                  className="h-4"
+                  className="h-4 cursor-pointer"
                 />
                 <img
                   src={`/trash${darkmode ? "-white" : ""}.png`}
                   alt="trash"
-                  className="h-4"
+                  className="h-4 cursor-pointer"
                 />
               </div>
             </div>

@@ -2,16 +2,9 @@ import React from "react";
 import { useState } from "react";
 
 export default function Folder({ darkmode, folder, handleFolderClick }) {
-    const [folderOpen, setFolderOpen] = useState(folder.open);
-
-
-    // const print= ()=>{
-    //   console.log(folder);
-    // }
-
+  const [folderOpen, setFolderOpen] = useState(folder.open);
 
   const toggleOpen = () => {setFolderOpen(!folderOpen)};
-  // const toggleOpen = (folder) => {console.log(folder);}
 
   return (
     <>
