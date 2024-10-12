@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import parse from "html-react-parser";
 
-export default function FileCard({ fileList, darkmode, searchText }) {
+export default function FileCard({ fileList, darkmode, searchText = '' }) {
   //   const [list, setList] = useState([...fileList]);
   // console.log(fileList);
 

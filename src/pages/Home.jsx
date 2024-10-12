@@ -5,6 +5,7 @@ import FileCard from "../components/FileCard";
 import FormComponent from "../components/FormComponent";
 
 import { useState} from 'react';
+import Header from '../components/Header';
 
 export default function Home() {
     const { darkmode, folderStructure, setFolderStructure } = useDashboardContext();
@@ -29,39 +30,10 @@ export default function Home() {
         notebook: false
     });
 
-    const timeOfTheDay = () => {
-        const now = new Date();
-        const hour = now.getHours();
-        if(hour > 4 && hour < 12) {
-        return 'morning';
-        } else if (hour >= 12 && hour < 18) {
-        return 'noon';
-        } else if (hour >= 18 && hour < 23) {
-        return 'evening';
-        } else if (hour >= 23 || hour <= 4) {
-        return 'night';
-        }
-    }
-
-  console.log(timeOfTheDay());
-
   return (
     <>
         <FormComponent activeFolderId={activeFolderId} showForm={showForm} setShowForm={setShowForm} setFilesList={setFilesList} setFolders={setFolderStructure} folders={folderStructure}/>
-        <div id="top" className="flex items-center justify-between p-5">
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-                Welcome User, Good {timeOfTheDay()}
-                <img
-                    src={`${timeOfTheDay()}${darkmode ? "-white" : ""}.png`}
-                    className="h-10"
-                />
-            </h1>
-            <img
-                src={`/circle-user${darkmode ? "-white" : ""}.png`}
-                alt="user"
-                className="h-10"
-            />
-          </div>
+        <Header/>
           <input
                 className="border border-[#626262] bg-[#ff] w-[95%] h-10 rounded-lg self-center p-3"
                 type="text"
