@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import parse from "html-react-parser";
 
 export default function FileCard({ fileList, darkmode, searchText }) {
   //   const [list, setList] = useState([...fileList]);
@@ -27,7 +28,7 @@ export default function FileCard({ fileList, darkmode, searchText }) {
   }
 
   return (
-    <div>
+    <div className="w-[100%]">
       {fileList.filter((e)=>{return e.name.toLowerCase().includes(searchText.toLowerCase())}).map((e, i) => {
         return (
           <div
@@ -46,7 +47,7 @@ export default function FileCard({ fileList, darkmode, searchText }) {
             <p className="text-[8px]">{e.created} . {daysAgo(e.created)}</p>
             <hr className="border-[#c9c9c9] h-[1px] w-[90%] self-center my-2" />
             <p className="text-xs h-20">
-              {e.desc.substring(0, 400)}
+              {parse(e.desc.substring(0, 400))}
             </p>
             <div className="flex justify-between mt-3">
               <div className="flex space-x-3">
