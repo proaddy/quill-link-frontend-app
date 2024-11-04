@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Trash from './pages/Trash';
 import Archive from './pages/Archive';
 import Editnote from './pages/Editnote';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="editnote" element={<Editnote/>}></Route>
             <Route path="archive" element={<Archive/>}></Route>
           </Route>
+          <Route path="/login" element={<Login/>}></Route>
         </Routes>
       </Router>
     </div>

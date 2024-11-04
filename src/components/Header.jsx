@@ -19,7 +19,7 @@ export default function Header() {
         return 'night';
         }
     }
-    console.log(timeOfTheDay());
+    // console.log(timeOfTheDay());
     return (
         <>
         <div id="top" className="flex items-center justify-between p-5">

@@ -1,23 +1,19 @@
 import { useEffect, useState } from "react";
-
 import { Link, Outlet} from "react-router-dom";
 
 import DashboardContext from "../components/DashboardContext";
 
-import folder_structure from '../data/folder_structure.json'
-
-import notebook from "../data/notebook.json";
+import axios from "axios";
 
 export default function Dashboard() {
     // useful because when toggle it changes/updates the UI
     const [darkmode, setDarkmode] = useState(false);
-    const [folderStructure, setFolderStructure] = useState(folder_structure);
 
     // pages can be home, favourite, notification, archive, trash
     const [pageSelect, setPageSelect] = useState("home");
 
+    // toggle darkmode
     useEffect(() => {
-        // console.log(darkmode);
         var r = document.querySelector(":root");
         if (darkmode) {
             r.style.setProperty("--background", "#1a2526");
@@ -30,13 +26,24 @@ export default function Dashboard() {
         }
     }, [darkmode]);
 
-    let dataToShare = {darkmode, folderStructure, setFolderStructure};
+    
+    const [notebook, setNotebook] = useState([]);
+    const [activeNotebook, setActiveNotebook] = useState({});
+    
+    useEffect(() => {
+        ;(async () => {
+            try {
+                const response = await axios.get('/api/notebooks');
+                setNotebook(response.data);
+                // console.log(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        })();
+    }, []);
 
-    // const navigate = useNavigate();
-
-    // function handleRedirect() {
-    //   navigate(/trash);
-    // }
+    // context sharing
+    let dataToShare = {darkmode, activeNotebook};
 
     return (
         <DashboardContext.Provider value={dataToShare}>
@@ -115,6 +122,7 @@ export default function Dashboard() {
                                 <Link to="/trash">Trash</Link>
                             </span>
                         </li>
+                        {/* darkmode toggle */}
                         <li
                             className="cursor-pointer flex font-bold items-center text-white"
                             onClick={() => setDarkmode(!darkmode)}
@@ -132,27 +140,27 @@ export default function Dashboard() {
                         </li>
                     </ul>
                     <hr className="w-[80%] h-[1px] self-center border-none mt-6 bg-gray-500" />
-                    <ul className="flex flex-col gap-4 mt-8 ml-10 overflow-x-hidden h-[18rem]">
-                        <li className="cursor-pointer flex font-bold items-center">
-                            <img
-                                src="/notebook-grad.png"
-                                className="h-6 mr-5"
-                            />
-                            <span className="bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] bg-clip-text text-transparent">
-                                Notebook
-                            </span>
-                        </li>
+                    {/* Notebooks */}
+                    <ul className="flex flex-col gap-4 mt-8 ml-10 overflow-x-hidden h-[24rem]">
+                        {/* {console.log(notebook)} */}
                         {notebook.map((e, i) => {
                             return (
                                 <li
                                     key={i}
                                     className="cursor-pointer flex font-bold items-center"
+                                    onClick={()=>setActiveNotebook({"_id":e._id, list: e.list})}
                                 >
                                     <img
-                                        src="/notebook-white.png"
+                                        src={
+                                            e._id === activeNotebook["_id"] ?
+                                            "/notebook-grad.png" :
+                                            "/notebook-white.png"}
                                         className="h-6 mr-5"
                                     />
-                                    <span className="text-white">{e.name}</span>
+                                    <span className={
+                                        e._id === activeNotebook["_id"] ?
+                                        "bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] bg-clip-text text-transparent":
+                                        "text-white"}>{e.name}</span>
                                 </li>
                             );
                         })}
