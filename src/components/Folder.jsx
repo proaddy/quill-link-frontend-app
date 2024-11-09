@@ -2,18 +2,34 @@ import React from "react";
 import { useState } from "react";
 import axios from "axios";
 import { useDashboardContext } from './DashboardContext';
+// import '../styles/MobLogin.scss'
 
-export default function Folder({ folder, handleFolderClick }) {
+export default function Folder({ activeFolder, folder, handleFolderClick, formClick }) {
+
+  // console.log(activeFolder);
+  const deleteFolder = async () => {
+    try {
+      setError(false);
+      setLoading(true);
+      if(confirm("Do you want to delete folder?? if yes then all the data inside the folder will be inaccessible")) {
+        console.log("waiting to be deleted", activeFolder._id);
+        const allData = await axios.delete(`/api/folders/${activeFolder._id}`);
+        if (allData){console.log("Folder Deleted");}
+        // console.log(allData);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setError(true);
+      setLoading(false);
+    }
+  }
+
   const [folderOpen, setFolderOpen] = useState(folder.open);
-
   const {darkmode} = useDashboardContext();
-
-  // console.log(folder);
 
   // subfolders and API call
   var subFolders = folder.list.filter(fol => fol.type === 'folder');
-  // console.log(subFolders);
-
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -22,7 +38,6 @@ export default function Folder({ folder, handleFolderClick }) {
   const fetchSubFolders = () => {
     // open toggle
     setFolderOpen(!folderOpen);
-
     ;(async () => {
         try {
             setError(false);
@@ -39,9 +54,9 @@ export default function Folder({ folder, handleFolderClick }) {
                     }
                 })
             )
-            setFoldersList(folderData);
+            setFoldersList(folderData.filter(ele => ele !== null));
             setLoading(false);
-            console.log(foldersList);
+            // console.log(foldersList);
         } catch (error) {
             console.log("error", error);
             setError(true);
@@ -50,28 +65,27 @@ export default function Folder({ folder, handleFolderClick }) {
         }
     })();
   };
-  
 
-    if(loading) {
-        return (
-            <div className="flex h-dvh items-center m-auto">
-                <h1 className="text-3xl">Loading...</h1>
-            </div>
-        )
-    }
+  if(loading) {
+      return (
+          <div className="flex h-dvh items-center m-auto">
+              <h1 className="text-3xl">Loading...</h1>
+          </div>
+      )
+  }
 
-    if(error) {
-        return (
-            <div className="flex h-dvh items-center m-auto">
-                <h1 className="text-3xl">Something Went Wrong...</h1>
-            </div>
-        )
-    }
+  if(error) {
+      return (
+          <div className="flex h-dvh items-center m-auto">
+              <h1 className="text-3xl">Something Went Wrong...</h1>
+          </div>
+      )
+  }
 
   return (
     <>
       <div
-        className="ml-6 flex items-center space-x-2 relative cursor-pointer"
+        className="group ml-6 flex items-center content-start space-x-2 relative cursor-pointer w-5/6"
         onClick={()=>{
           handleFolderClick(folder); 
           fetchSubFolders();
@@ -87,15 +101,24 @@ export default function Folder({ folder, handleFolderClick }) {
           alt="folder"
           className="h-4"
         />
-        <span>{folder.name}</span> {/* fol 1.1 */}
-      </div>
+        <span>{folder.name}</span>
+          <div className="relative hidden gap-1 group-hover:flex h-5 items-center p-3 z-10 ml-20">
+            {'->'}
+            <div className="absolute top-2 left-8 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 delay-1000">
+                <ul className="rounded-lg bg-gray-300">
+                  <li className="px-4 py-1 hover:bg-gray-600 hover:text-white rounded-t-lg" onClick={()=>formClick('folder', 'rename')}>Rename</li>
+                  <li className="px-4 py-1 hover:bg-gray-600 hover:text-white rounded-b-lg" onClick={deleteFolder}>Delete</li>
+                </ul>
+              </div>
+          </div>
+        </div>
       {
         folderOpen && (
             <div className="ml-5">
                 {subFolders.length > 0 &&
                   foldersList.map((folder, index)=>{
                       return (
-                          <Folder key={index} folder={folder} darkmode={darkmode} handleFolderClick={handleFolderClick}/>
+                          <Folder key={index} folder={folder} darkmode={darkmode} handleFolderClick={handleFolderClick} formClick={formClick}/>
                       )
                 })}
             </div>

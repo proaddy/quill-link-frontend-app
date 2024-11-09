@@ -2,13 +2,13 @@ import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import './App.css';
 import './styles/MobLogin.scss'
-import './styles/test.css'
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Trash from './pages/Trash';
 import Archive from './pages/Archive';
 import Editnote from './pages/Editnote';
 import Login from './pages/Login';
+import Register from './pages/Register';
 
 function App() {
   return (
@@ -23,6 +23,7 @@ function App() {
             <Route path="archive" element={<Archive/>}></Route>
           </Route>
           <Route path="/login" element={<Login/>}></Route>
+          <Route path="/register" element={<Register/>}></Route>
         </Routes>
       </Router>
     </div>

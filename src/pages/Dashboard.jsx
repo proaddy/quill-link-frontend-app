@@ -1,16 +1,51 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet} from "react-router-dom";
+import { Link, Outlet, useNavigate} from "react-router-dom";
 
 import DashboardContext from "../components/DashboardContext";
+import FormComponent from "../components/FormComponent";
 
 import axios from "axios";
 
 export default function Dashboard() {
+    const navigate = useNavigate();
     // useful because when toggle it changes/updates the UI
     const [darkmode, setDarkmode] = useState(false);
 
     // pages can be home, favourite, notification, archive, trash
     const [pageSelect, setPageSelect] = useState("home");
+
+    const [showForm, setShowForm] = useState(false);
+    const [type, setType] = useState(false);
+    const [action, setAction] = useState(false);
+
+    const formClick = (what, why) => {
+        setShowForm(true);
+        setType(what);
+        setAction(why);
+    };
+
+    const userid = localStorage.getItem('userID');
+    if (!userid) {
+        console.log('user not logged in');
+        navigate('/login', {state: {action: "notloggedin"}});
+    }
+
+    const deleteNotebook = async () => {
+        try {
+            setError(false);
+            setLoading(true);
+            if(confirm("Do you want to delete notebook?? if yes then all the data inside the notebook will be inaccessible")) {
+                console.log(activeNotebook._id);
+              const allData = await axios.delete(`/api/notebooks/${activeNotebook._id}`);
+              console.log(allData);
+            }
+            setLoading(false);
+          } catch (error) {
+            console.log(error);
+            setError(true);
+            setLoading(false);
+          }
+    }; 
 
     // toggle darkmode
     useEffect(() => {
@@ -25,17 +60,38 @@ export default function Dashboard() {
             r.style.setProperty("--accent-col", "#A3D1F1");
         }
     }, [darkmode]);
-
     
     const [notebook, setNotebook] = useState([]);
     const [activeNotebook, setActiveNotebook] = useState({});
+
+    // console.log(activeNotebook);
+
+    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(false);
     
     useEffect(() => {
         ;(async () => {
             try {
-                const response = await axios.get('/api/notebooks');
-                setNotebook(response.data);
-                // console.log(response.data);
+                setError(false);
+                setLoading(true);
+                const userId = await axios.get(`/api/users/${userid}`);
+                // console.log(userId.data.list);
+                const notebookList = userId.data.list;
+                const allNotebooks = await Promise.all(
+                    notebookList.map(async (noteId) => {
+                        try {
+                            const response = await axios.get(`/api/notebooks/${noteId}`);
+                            // console.log(response);
+                            return response.data;
+                        } catch (error) {
+                            console.log(`Failed to fetch data for notebook ID ${noteId}`, error);
+                            setError(true);
+                            return null;
+                        }
+                    })
+                );
+                setNotebook(allNotebooks.filter(ele => ele != null));
+                setLoading(false);
             } catch (error) {
                 console.log(error);
             }
@@ -47,6 +103,7 @@ export default function Dashboard() {
 
     return (
         <DashboardContext.Provider value={dataToShare}>
+            <FormComponent showForm={showForm} setShowForm={setShowForm} type={type} action={action}/>
             <div className="dashboard-body flex">
                 {/* Left component */}
                 <div className="w-1/5 h-screen relative flex flex-col">
@@ -124,7 +181,7 @@ export default function Dashboard() {
                         </li>
                         {/* darkmode toggle */}
                         <li
-                            className="cursor-pointer flex font-bold items-center text-white"
+                            className={`cursor-pointer flex font-bold items-center`}
                             onClick={() => setDarkmode(!darkmode)}
                         >
                             <img
@@ -136,7 +193,12 @@ export default function Dashboard() {
                                 }.png`}
                                 alt="toggle"
                             />
-                            Dark Mode
+                            <span className={
+                                darkmode ? "bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] bg-clip-text text-transparent"
+                                : "text-white" 
+                            }>
+                                Dark Mode
+                            </span>
                         </li>
                     </ul>
                     <hr className="w-[80%] h-[1px] self-center border-none mt-6 bg-gray-500" />
@@ -147,7 +209,7 @@ export default function Dashboard() {
                             return (
                                 <li
                                     key={i}
-                                    className="cursor-pointer flex font-bold items-center"
+                                    className="group cursor-pointer flex font-bold items-center"
                                     onClick={()=>setActiveNotebook({"_id":e._id, list: e.list})}
                                 >
                                     <img
@@ -155,17 +217,29 @@ export default function Dashboard() {
                                             e._id === activeNotebook["_id"] ?
                                             "/notebook-grad.png" :
                                             "/notebook-white.png"}
-                                        className="h-6 mr-5"
+                                        className="h-6 mr-1.5"
                                     />
                                     <span className={
                                         e._id === activeNotebook["_id"] ?
                                         "bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] bg-clip-text text-transparent":
                                         "text-white"}>{e.name}</span>
+                                    <div className="text-white pl-2 relative hidden group-hover:block">
+                                        {'->'}
+                                        <div className="absolute top-2 left-8 z-500">
+                                            <ul className="rounded-lg bg-gray-900">
+                                            <li className="px-4 py-1 hover:bg-gray-200 hover:text-black rounded-t-lg" onClick={()=>formClick('notebook', 'rename')}>Rename</li>
+                                            <li className="px-4 py-1 hover:bg-gray-200 hover:text-black rounded-b-lg" onClick={()=>deleteNotebook()}>Delete</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </li>
                             );
                         })}
                     </ul>
-                    <button className="self-center mb-5 w-3/5 h-10 text-white bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] rounded-lg font-bold">
+                    <button 
+                        className="self-center mb-5 w-3/5 h-10 text-white bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] rounded-lg font-bold"
+                        onClick={()=>formClick('notebook', 'create')}
+                    >
                         + New Notebook
                     </button>
                     <img

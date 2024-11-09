@@ -56,3 +56,18 @@
 .ck .ck-content {
     height: 500px;
 }
+
+@keyframes delayedFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+}
+
+.delayed-fade-in {
+    animation: delayedFadeIn 0.5s ease-in forwards;
+    animation-delay: 2s; /* Delay before starting the fade-in */
+}
+  

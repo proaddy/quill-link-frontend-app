@@ -1,72 +1,90 @@
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo } from 'ckeditor5';
+import { ClassicEditor, Bold, Essentials, Italic, Underline , Mention, Paragraph, Undo, Alignment } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
-// import { SlashCommand } from 'ckeditor5-premium-features';
 
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useDashboardContext } from '../components/DashboardContext';
-// import 'ckeditor5-premium-features/ckeditor5-premium-features.css';
+import axios from 'axios';
 
 export default function Editnote() {
 
     const location = useLocation();
+    const navigate = useNavigate();
     const {id} = location.state || '';
 
-    const { folderStructure, setFolderStructure } = useDashboardContext();
-
-    function searchFolder(folderlist, id) {
-        folderlist.forEach(element => {
-            if(element.type === 'file') {
-                if(element.id === id) {
-                    setText(element.desc)
-                }
-            }
-            else if(element.type === 'folder') {
-                searchFolder(element.list, id)
-            }
-        });
-    }
-
-    function savechanges(folderlist, id, text) {
-        // console.log(folderlist, id, text);
-        return folderlist.map(element => {
-            if(element.type === 'file' && element.id === id) {
-                console.log(element);
-                return {...element, desc: text};
-            } else if(element.type === 'folder') {
-                return {...element, list: savechanges(element.list, id, text)};
-            } else {
-                return element;
-            }
-        })
-    }
-
-    const [text, setText] = useState();
-
-    const navigate = useNavigate();
+    const [text, setText] = useState('');
+    const [name, setName] = useState('');
 
     const handleClick = () => {
-        const newfolderStructure = savechanges(folderStructure, id, text);
-        setFolderStructure(newfolderStructure)
-        // console.log(newfolderStructure);
-        navigate('/')
+        (async () => {
+            try {
+                const response = await axios.put(`/api/files/${id}`, {"desc": text, "name":name});
+                if(response) {
+                    console.log("File Updated Successfully");
+                }
+            } catch (error) {
+                console.log("error", error.message);
+            }
+        })();
+        navigate('/');
     }
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
+    // const [data, setData] = useState('');
+
     useEffect(()=>{
-        searchFolder(folderStructure, id)
+       ;(async () => {
+            try {
+                setIsError(false);
+                setIsLoading(true);
+                const response = await axios.get(`/api/files/${id}`);
+                if (!response) {
+                    console.error("No such file found");
+                    setIsError(true);
+                    setIsLoading(false);
+                    return;
+                }
+                // console.log(response);
+                setName(response.data.name);
+                setText(response.data.desc);
+                setIsLoading(false);
+            } catch (error) {
+                console.error("error", error.message);
+                setIsError(true);
+                setIsLoading(false);
+            }
+        })();
+        
     }, []);
+
+    if(isLoading) {
+        return (
+            <div className="flex h-svh items-center m-auto">
+                <h1 className="text-5xl">Loading...</h1>
+            </div>
+        )
+    }
+
+    if(isError) {
+        return (
+            <div className="flex h-svh items-center m-auto">
+                <h1 className="text-5xl">Something Went Wrong...</h1>
+            </div>
+        )
+    }
 
     return (
       <div className='flex flex-col'>
+        <input type="text" className='p-3 text-xl font-bold' placeholder='File Name...' value={name} onChange={(e)=>setName(e.target.value)}/>
         <CKEditor
             editor={ ClassicEditor }
             config={ {
                 toolbar: {
-                    items: [ 'undo', 'redo', '|', 'bold', 'italic'],
+                    items: [ 'undo', 'redo', '|', 'bold', 'italic', 'underline', 'alignment'],
                 },
                 plugins: [
-                    Bold, Essentials, Italic, Mention, Paragraph, Undo
+                    Bold, Essentials, Italic, Mention, Paragraph, Undo, Underline, Alignment
                 ]
             } }
             data = {text}

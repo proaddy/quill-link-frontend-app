@@ -1,223 +1,127 @@
-import { useState } from 'react'
-import { v4 as uuidv4} from 'uuid';
+import axios from "axios";
+import { useState } from "react";
+import { useDashboardContext } from "./DashboardContext";
 
-import { useDashboardContext } from '../components/DashboardContext';
+export default function FormComponent({activeFolder, type, action, showForm, setShowForm}) {
+    const { activeNotebook } = useDashboardContext();
+    let userId = localStorage.getItem("userID");
 
-export default function FormComponent({activeFolderId, showForm, setShowForm, setFilesList, setFolders, folders}) {
+    const [name, setName] = useState('');
+    const [ifNotebookFolder, setIfNotebookFolder] = useState(false);
 
-    const { folderStructure, setFolderStructure } = useDashboardContext();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
 
-    // searching folder name
-    let folderOptionList = [];
-    
-    function traverseAndCollect(folderList) {
-        folderList.forEach((folder)=>{
-            if(folder.type === 'folder') {
-                folderOptionList.push(folder.name);
-            } if (folder.list && folder.list.length > 0) {
-                traverseAndCollect(folder.list);
-            }
-        })
-    };
-    traverseAndCollect(folderStructure);
-
-    // initial state of file
-    const [fileFormData, setFileFormData] = useState({
-        id: uuidv4(),
-        type: 'file',
-        name: '',
-        desc: '',
-        favourite: false,
-        archive: false,
-        trash: false,
-        users_list: [],
-        created: new Date().toISOString().substring(0, 10),
-        address: ''
-    });
-
-    // initial state of folder
-    const [folderFormData, setFolderFormData] = useState({
-        id: uuidv4(),
-        type: 'folder',
-        name: '',
-        open: false,
-        address: '',
-        list: []
-    });
-
-    const [notebookFormData, setNotebookFormData] = useState({});
-
-    // handle the change when filling form for file
-    const handleFileChange = (e)=>{
-        const {name, value, type, checked} = e.target;
-        setFileFormData({
-            ...fileFormData,
-            [name]: type === 'checkbox' ? checked : value
-        });
-    };
-
-    // handle the change when filling form for folder
-    const handleFolderChange = (e)=>{
-        const {name, value, type, checked} = e.target;
-        setFolderFormData({
-            ...folderFormData,
-            [name]: type === 'checkbox' ? checked : value
-        });
-    };
-
-    // reset the form with default values
-    const resetForm = ()=>{
-        setFileFormData({
-            id: uuidv4(),
-            type: 'file',
-            name: '',
-            desc: '',
-            favourite: false,
-            archive: false,
-            trash: false,
-            users_list: [],
-            created: new Date().toISOString().substring(0, 10),
-            address: ''
-        });
-
-        setFolderFormData({
-            id: uuidv4(),
-            type: 'folder',
-            name: '',
-            open: false,
-            address: '',
-            list: []
-        });
+    function capitalize(str) {
+        return String(str).charAt(0).toUpperCase() + String(str).slice(1)
     }
 
-
-    // function to make a deep copy of objects
-    const deepcopy = (data) => {
-        return JSON.parse(JSON.stringify(data));
+    const parentType = {
+        'notebook': 'user',
+        'folder': 'folder',
+        'file' : 'folder'
     }
 
-    // recursive search function for saving changes
-    function searchFolderAddFile(folderStructure, id, data) {
-        console.log(folderStructure);
-        folderStructure.forEach((item)=>{
-            if(item.type === 'folder') {
-                if(item.id === id) {
-                    console.log(item.name);
-                    data['address'] = `${item.address}/${item.name}`;
-                    item.list.push(data);
-                    setFilesList(item.list.filter((item)=>{return item.type==='file'}));
-                } else if(item.list && item.list.length > 0){
-                    searchFolderAddFile(item.list, id, data);
-                }
-            }
-        });
+    const bodyGenerator = (type, response) => {
+        if (type === 'file' || type === 'folder') {
+            return {"fileId": response.data[type]._id, "fileType": response.data[type].type}
+        } else if (type === 'notebook') {
+            return {"notebookId": response.data[type]._id}
+        }
     }
 
-    function searchFolderAddFolder(folderStructure, id, data) {
-        folderStructure.forEach((item)=>{
-            if(item.type === 'folder') {
-                if(item.id === id) {
-                    console.log(item.name);
-                    data['address'] = `${item.address}/${item.name}`;
-                    item.list.push(data);
-                } else if(item.list && item.list.length > 0){
-                    searchFolderAddFolder(item.list, id, data);
-                }
-            }
-        });
-    }
-
-    // when form is submitted for file
-    const fileFormHandler = (e)=>{
+    const submitFolder = async (e) => {
         e.preventDefault();
-        const structureToUpdate = deepcopy(folderStructure);
-        searchFolderAddFile(structureToUpdate, activeFolderId, fileFormData);
-        setFolderStructure(structureToUpdate);
-        console.log(folderStructure);
-        resetForm();
-        setShowForm({file: false, folder: false, notebook: false});
+        // var response;
+        if (action === 'create') {
+            try {
+                setName('');
+                setIsError(false);
+                setIsLoading(true);
+                const response = await axios.post(`/api/${type}s`, {"name": name});
+                // console.log('response', response);
+                console.log(`${type} created!!!`);
+
+                // adding into parent
+                try {
+                    // if adding folder in notebook
+                    if (ifNotebookFolder) {
+                        const saved = await axios.patch(`/api/notebooks/${activeNotebook._id}/add-into-notebook`, {"folderId": response.data[type]._id});
+                        console.log("Added into notebook", saved);
+                    } else {
+                        // adding in general
+                        const saved = await axios.patch(`/api/${parentType[type]}s/${type === 'notebook' ? userId : activeFolder._id}/add-into-${parentType[type]}`, bodyGenerator(type, response))
+                        console.log(`Added in ${parentType[type]}`, saved);
+                    }
+                    setIsLoading(false);
+                } catch (error) {
+                    console.error("error", error.message);
+                    setIsError(true)
+                    setIsLoading(false);
+                };
+
+            } catch (error) {
+                console.log("error", error.message);
+                return;
+            }
+        } else if ( action === 'rename') {
+            ;(async () => {
+                try {
+                    setName('');
+                    setIsError(false);
+                    setIsLoading(true);
+                    // console.log(type, typeof(type));
+                    if (type === 'file') {
+                        const response = await axios.put(`/api/${type}s/${activeFolder._id}`, {"name":name});
+                        console.log("file", response);
+                    } else if ( type === 'folder' ) {
+                        const response = await axios.put(`/api/${type}s/${activeFolder._id}`, {"name":name});
+                        console.log("folder", response);
+                    } else if ( type === 'notebook' ) {
+                        const response = await axios.put(`/api/${type}s/${activeNotebook._id}`, {"name":name});
+                        console.log("notebook", response);
+                    }
+                    console.log(`${type} renamed`);
+                    setIsLoading(false);
+                } catch (error) {
+                    console.log("error", error.message);
+                    setIsError(true);
+                    setIsLoading(false);
+                    return;
+                }
+            })();
+        }
     }
 
-    // when form is submitted for folder
-    const folderFormHandler = (e)=>{
-        e.preventDefault();
-        const folder_structure = deepcopy(folderStructure);
-        searchFolderAddFolder(folder_structure, activeFolderId, folderFormData);
-        setFolderStructure(folder_structure);
-        resetForm();
-        setShowForm({file: false, folder: false, notebook: false});
-        // console.log("folder", folderFormData);
-    }
-    
-    // close form button
-    const formCloseFn = ()=>{
-        resetForm();
-        setShowForm({file: false, folder: false, notebook: false});
+    const formHandle = () => {
+        setShowForm(!showForm);
+        setName('');
     }
 
-  return (
-    <>
-    {
-        showForm['file'] &&
-        <div className={`w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10`}>
-            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={formCloseFn}/>
-            <form onSubmit={fileFormHandler} className="bg-white min-w-[30rem] h-[30rem] rounded-lg p-3 flex flex-col gap-1 justify-evenly">
-                <label htmlFor="name">Name: </label><input value={fileFormData["name"]} onChange={handleFileChange} required name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
-                <label htmlFor="desc">Description: </label><br /><textarea value={fileFormData["desc"]} onChange={handleFileChange} name="desc" id="desc" type="text" className="border border-black rounded-md h-24 p-2"/><br />
-                <label htmlFor="favourite">Favourite: <input onChange={handleFileChange} value={fileFormData["favourite"]} name="favourite" id="favourite" type="checkbox"/></label><br />
-                <label>Created: </label><input required value={fileFormData["created"]} onChange={handleFileChange} type="date" name="created" id="created" /><br />
-                <label htmlFor="address">Folder: </label>
-                <select value={fileFormData["address"]} onChange={handleFileChange} name="address" id="address" className="h-8 p-2 rounded-md">
-                    {
-                        folderOptionList.map((e, i)=>{
-                            return (
-                                <option key={i}>{e}</option>
+    return (
+        <>
+            {
+                showForm && (
+                    <div className='w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10'>
+                    <form onSubmit={(e)=>submitFolder(e)} className="relative bg-white w-80 h-64 rounded-lg p-5 flex flex-col justify-evenly">
+                        <img src="close.png" className="absolute h-6 w-6 right-2 top-2 cursor-pointer invert self-start" onClick={formHandle}/>
+                        <label htmlFor="name">Name: </label><input onChange={(e)=>setName(e.target.value)} value={name} placeholder={`Enter ${type} name`} name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
+                        { type === 'folder' && (
+                                <div className="flex items-center">
+                                <label htmlFor="n-fol">Notebook Folder: </label><input onChange={(e)=>setIfNotebookFolder(e.target.checked)} name="n-fol" id="n-fol" type="checkbox" className="ml-8"/>
+                                </div>
+                            )}
+                        {
+                            isLoading ? (<div className="h-10 w-3/5 self-center">Loading...</div>) : isError ? (<div className="h-10 w-3/5 self-center">Something Went Wrong...</div>) : (
+                                <button type="submit" 
+                                        className="self-center mb-5 w-3/5 h-10 text-white bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] rounded-lg font-bold"
+                                >{capitalize(action)} {capitalize(type)}</button>
                             )
-                        })
-                    }
-                </select><br />
-                <button type="submit" className="border border-black rounded-lg p-2">Add File</button>
-            </form>
-        </div>
-    }
-    {
-        showForm['folder'] && 
-        <div className={`w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10`}>
-            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={formCloseFn}/>
-            <form onSubmit={folderFormHandler} className="bg-white min-w-[30rem] h-[30rem] rounded-lg p-3 flex flex-col gap-1 justify-evenly">
-                <label htmlFor="name">Name: </label><input value={folderFormData["name"]} onChange={handleFolderChange} required name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
-                <label htmlFor="address">Folder: </label>
-                <select value={folderFormData["address"]} onChange={handleFolderChange} name="address" id="address" className="h-8 p-2 rounded-md">
-                    {
-                        folderOptionList.map((e, i)=>{
-                            return (
-                                <option key={i}>{e}</option>
-                            )
-                        })
-                    }
-                </select><br />
-                <button type="submit" className="border border-black rounded-lg p-2">Add Folder</button>
-            </form>
-        </div>
-    }
-    {
-        showForm['notebook'] &&
-        <div className={`w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10`}>
-            <img src="close.png" className="h-8 w-8 absolute right-0 top-0 m-8 cursor-pointer" onClick={formCloseFn}/>
-            <form onSubmit={fileFormHandler} className="bg-white min-w-[30rem] h-[30rem] rounded-lg p-3 flex flex-col gap-1 justify-evenly">
-                <label htmlFor="name">Name: </label><input value={formData["name"]} onChange={handleChange} required name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
-                <label htmlFor="desc">Description: </label><br /><textarea value={formData["desc"]} onChange={handleChange} name="desc" id="desc" type="text" className="border border-black rounded-md h-24 p-2"/><br />
-                <label htmlFor="favourite">Favourite: <input onChange={handleChange} value={formData["favourite"]} name="favourite" id="favourite" type="checkbox"/></label><br />
-                <label>Created: </label><input value={formData["date"]} onChange={handleChange} type="date" name="date" id="date" /><br />
-                <label htmlFor="address">Folder: </label>
-                <select value={formData["address"]} onChange={handleChange} name="address" id="address" className="h-8 p-2 rounded-md">
-                <option value="default">Default</option>
-                <option value="folder_1">folder 1</option>
-                <option value="folder_2">folder 2</option>
-                </select><br />
-                <button type="submit" className="border border-black rounded-lg p-2">Add Notebook</button>
-            </form>
-        </div>
-    }
-    </>
+                        }
+                       
+                    </form>
+                </div>
+                )
+            }
+        </>
 )}

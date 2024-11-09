@@ -1,11 +1,10 @@
 import { useDashboardContext } from '../components/DashboardContext';
+import { useState, useEffect} from 'react';
 
+// components
 import Folder from "../components/Folder";
-import FileCard from "../components/FileCard";
+import FileCardList from "../components/FileCardList";
 import FormComponent from "../components/FormComponent";
-
-import { useState, useEffect } from 'react';
-
 import Header from '../components/Header';
 
 import axios from 'axios';
@@ -16,23 +15,26 @@ export default function Home() {
     const allFolders = activeNotebook.list;
 
     const [activeFolder, setactiveFolder] = useState('');
-    let subFiles = [];
+    // let subFiles = [];
 
     // function to update list of files
     const handleFolderClick = (folder)=>{
-        subFiles = folder.list.filter(fol => fol.type === 'file');
-        // console.log(subFiles);
+        // subFiles = folder.list.filter(fol => fol.type === 'file');
         setactiveFolder(folder);
     }
     
-    const [searchText, setSearchText] = useState('');
+    // console.log(subFiles);
+    const [showForm, setShowForm] = useState(false);
+    const [type, setType] = useState(false);
+    const [action, setAction] = useState(false);
 
-    // show file, folder, notebook form
-    const [showForm, setShowForm] = useState({
-        file: false,
-        folder: false,
-        notebook: false
-    });
+    const formClick = (what, why) => {
+        setShowForm(true);
+        setType(what);
+        setAction(why);
+    }
+ 
+    const [searchText, setSearchText] = useState('');
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
@@ -43,6 +45,7 @@ export default function Home() {
             try {
                 setError(false);
                 setLoading(true);
+                if(!allFolders) {return (<></>)};
                 const folderData = await Promise.all(
                     allFolders.map(async (folderID) => {
                         try {
@@ -54,7 +57,8 @@ export default function Home() {
                         }
                     })
                 )
-                setFoldersList(folderData);
+                // console.log(folderData);
+                setFoldersList(folderData.filter(folder => folder !== null));
                 setLoading(false);
             } catch (error) {
                 console.log("error", error);
@@ -80,11 +84,11 @@ export default function Home() {
                 <h1 className="text-5xl">Something Went Wrong...</h1>
             </div>
         )
-    }
-
+    } 
+    
   return (
     <>
-        {/* <FormComponent activeFolderId={activeFolderId} showForm={showForm} setShowForm={setShowForm} setFilesList={setFilesList} setFolders={setFolderStructure} folders={folderStructure}/> */}
+        <FormComponent activeFolder={activeFolder} showForm={showForm} setShowForm={setShowForm} type={type} action={action}/>
         <Header/>
         <input
             className="border border-[#626262] bg-[#ff] w-[95%] h-10 rounded-lg self-center p-3"
@@ -100,7 +104,7 @@ export default function Home() {
             {/* left */}
             <div className="w-1/2 h-full rounded-2xl border border-[#626262]">
                 <h2 className="flex justify-between px-6 py-2 font-bold">
-                    Folders <button onClick={()=>setShowForm({file: false, folder: true, notebook: false})}>+</button>
+                    Folders <button onClick={()=>formClick('folder', 'create')}>+</button>
                 </h2>
                 <hr className="w-[90%] h-[5px] ml-[5%] border-[#c1c1c1]" />
                 {/* row */}
@@ -108,7 +112,7 @@ export default function Home() {
                     {
                         foldersList.map((folder, index) => {
                             return (
-                                <Folder key={index} folder={folder} handleFolderClick={handleFolderClick}/>
+                                <Folder activeFolder={activeFolder} key={index} folder={folder} handleFolderClick={handleFolderClick} formClick={formClick}/>
                             )
                         })
                     }
@@ -118,12 +122,12 @@ export default function Home() {
             {/* right */}
             <div className="w-3/4 h-full rounded-2xl border border-[#626262]">
                 <h2 className="flex justify-between px-6 py-2 font-bold">
-                    Files <button onClick={()=>setShowForm({file: true, folder: false, notebook: false})}>+</button>
+                    Files <button onClick={()=>formClick('file', 'create')}>+</button>
                 </h2>
                 <hr className="w-[96%] h-[5px] ml-[2%] border-[#c1c1c1]" />
                 {/* notes */}
                 <div className="flex ml-[3%] flex-wrap h-[460px] mt-3 overflow-auto">
-                    <FileCard activeFolder={activeFolder} searchText={searchText}/>
+                    <FileCardList activeFolder={activeFolder} searchText={searchText}/>
                 </div>
             </div>
         </div>

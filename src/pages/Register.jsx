@@ -1,37 +1,32 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 export default function Login() {
     const navigate = useNavigate();
 
+    const [username, setUsername] = useState('');
+    const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [passwd, setPasswd] = useState('');
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
 
-    async function checkLogin(e) {
+    async function registerUser(e) {
         e.preventDefault();
         try {
             setError(false);
             setLoading(true);
-            const response = await axios.get('/api/users');
-            console.log(response);
-            response.data.forEach(user => {
-                if (user.email === email && user.password === passwd) {
-                    setLoading(false);
-                    console.log("login successful");
-                    alert("Login Successfully");
-                    // store data
-                    localStorage.setItem("userID", user._id);
-                    localStorage.setItem("username", user.username);
-
-                    navigate('/');
-                    return;
-                }
-            });
+            
+            const response = await axios.post('/api/users/', {"username":username, "name":fullname, "email":email, "password": passwd});
+            if (response) {
+                alert("User Created Successfully");
+                navigate('/login');
+            }
             setLoading(false);
+            setUsername('');
+            setFullname('');
             setEmail('');
             setPasswd('');
         } catch (error) {
@@ -40,17 +35,6 @@ export default function Login() {
             console.error("error", error);
         }
     }
-
-    const data = useLocation();
-    useEffect(()=>{
-        if (data.state) {
-            if (data.state.action === 'logout') {
-                alert("Logout successfull");
-            } else if (data.state.action === 'notloggedin') {
-                alert("User Not LoggedIn");
-            } else {}
-        }
-    }, []);
 
     if (loading) {
         return (
@@ -72,16 +56,22 @@ export default function Login() {
             </div>
             <div className="w-3/5 h-screen bg-[#F5F6FA] flex items-center justify-center">
                 <div className="w-[30rem] flex-col flex">
-                    <span className="font-bold text-4xl">Hello Again!!</span>
-                    <form onSubmit={checkLogin} className="flex flex-col">
-                        <span className='font-bold mt-6'>Email Address</span>
+                    <span className="font-bold text-4xl">Welcome to QuillLink!!</span>
+                    <form onSubmit={registerUser} className="flex flex-col">
+                        <span className='font-bold mt-6'>Full Name</span>
+                        <input value={fullname} required onChange={(e)=>setFullname(e.target.value)} type="text" className='mt-2 border border-[#707070] font-bold rounded-lg bg-transparent px-3 py-2' placeholder='Enter your fullname'/>
+
+                        <span className='font-bold mt-4'>Username</span>
+                        <input value={username} required onChange={(e)=>setUsername(e.target.value)} type="text" className='mt-2 border border-[#707070] font-bold rounded-lg bg-transparent px-3 py-2' placeholder='Enter username'/>
+
+                        <span className='font-bold mt-4'>Email Address</span>
                         <input value={email} required onChange={(e)=>setEmail(e.target.value)} type="email" className='mt-2 border border-[#707070] font-bold rounded-lg bg-transparent px-3 py-2' placeholder='Enter your email address'/>
 
                         <span className='font-bold mt-4'>Password</span>
                         <input value={passwd} required onChange={(e)=>setPasswd(e.target.value)} type="password" className='mt-2 border border-[#707070] font-bold rounded-lg bg-transparent px-3 py-2 z-10' placeholder='Enter your password'/>
-                        <button type="submit" className='w-full rounded-lg border bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] font-bold text-xl text-white h-12 mt-5'>Login</button>
+                        <button type="submit" className='w-full rounded-lg border bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] font-bold text-xl text-white h-12 mt-5'>Register</button>
                     </form>
-                    <span className="text-xs font-bold self-center mt-2">Don't have account? <a href="/register" className="bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] bg-clip-text text-transparent">Sign up Here</a></span>
+                    <span className="text-xs font-bold self-center mt-2">Already have account? <a href="/login" className="bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] bg-clip-text text-transparent">LogIn Here</a></span>
                 </div>
             </div>
         </div>
