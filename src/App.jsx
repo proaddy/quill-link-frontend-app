@@ -22,8 +22,14 @@ function App() {
             <Route path="editnote" element={<Editnote/>}></Route>
             <Route path="archive" element={<Archive/>}></Route>
           </Route>
-          <Route path="/login" element={<Login/>}></Route>
+          <Route path="/login" index element={<Login/>}></Route>
           <Route path="/register" element={<Register/>}></Route>
+          <Route path="*" element={
+            <div className='flex h-screen flex-col items-center justify-center'>
+              <h1 className='text-8xl m-5'>404 No Page Found</h1>
+              <p className='text-xl'>return to <a href="/login" className='underline'>login</a></p>
+            </div>
+            }></Route>
         </Routes>
       </Router>
     </div>

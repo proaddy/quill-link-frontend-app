@@ -22,8 +22,12 @@ export default function FormComponent({activeFolder, type, action, showForm, set
         'file' : 'folder'
     }
 
+    const userid = localStorage.getItem("userID");
+
     const bodyGenerator = (type, response) => {
-        if (type === 'file' || type === 'folder') {
+        if (type === 'file') {
+            return {"fileId": response.data[type]._id, "fileType": response.data[type].type, "userID" : userid}
+        } else if (type === 'folder') {
             return {"fileId": response.data[type]._id, "fileType": response.data[type].type}
         } else if (type === 'notebook') {
             return {"notebookId": response.data[type]._id}

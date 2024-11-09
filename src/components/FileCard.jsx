@@ -8,10 +8,9 @@ export default function FileCard({file}) {
 
     const [favourite, setFavourite] = useState(file.favourite);
     const [clickTime, setClickTime] = useState(null);
-    const [renameEnable, setRenameEnable] = useState(false);
 
     const navigate = useNavigate();
-    console.log(file.createdAt);
+    // console.log(file.createdAt);
 
     function navigateEdit(id) {
         navigate("/editnote", { state: { id: id } });
@@ -22,7 +21,6 @@ export default function FileCard({file}) {
         if (clickTime && currentTime - clickTime < 300) {
             console.log('double click');
             setClickTime(null);
-            setRenameEnable(true);
         } else {
             // console.log('single cilck');
             setClickTime(currentTime);
