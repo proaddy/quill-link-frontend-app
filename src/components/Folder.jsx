@@ -4,7 +4,7 @@ import axios from "axios";
 import { useDashboardContext } from './DashboardContext';
 // import '../styles/MobLogin.scss'
 
-export default function Folder({ activeFolder, folder, handleFolderClick, formClick }) {
+export default function Folder({activeFolder, folder, handleFolderClick, formClick }) {
 
   // console.log(activeFolder);
   const deleteFolder = async () => {
@@ -12,9 +12,24 @@ export default function Folder({ activeFolder, folder, handleFolderClick, formCl
       setError(false);
       setLoading(true);
       if(confirm("Do you want to delete folder?? if yes then all the data inside the folder will be inaccessible")) {
-        console.log("waiting to be deleted", activeFolder._id);
-        const allData = await axios.delete(`/api/folders/${activeFolder._id}`);
-        if (allData){console.log("Folder Deleted");}
+        // console.log("waiting to be deleted", folder._id);
+        const allData = await axios.delete(`/api/folders/${folder._id}`);
+        console.log("Folder Deleted");
+        if (allData){
+          try {
+            const checkList = await axios.get(`/api/folders/${activeFolder._id}`);
+            if(checkList.data && checkList.data.list.includes(folder._id)){
+              const response = await axios.patch(`/api/folders/${activeFolder._id}/remove-from-folder`, {itemId : folder._id, itemType: "folder"});
+              if (response) {console.log('folder removed from folder')};
+            } else {
+              const response = await axios.patch(`/api/notebooks/${activeNotebook._id}/rm-from-notebook`, {folderId: folder._id});
+              if (response) {console.log('folder removed from notebook')};
+            }
+          } catch (error) {
+            console.log("error", error.message);
+            setError(true);
+          }
+        }
         // console.log(allData);
       }
       setLoading(false);
@@ -23,10 +38,11 @@ export default function Folder({ activeFolder, folder, handleFolderClick, formCl
       setError(true);
       setLoading(false);
     }
+    setActiveNotebook({...activeNotebook});
   }
 
   const [folderOpen, setFolderOpen] = useState(folder.open);
-  const {darkmode} = useDashboardContext();
+  const {darkmode, setActiveNotebook, activeNotebook} = useDashboardContext();
 
   // subfolders and API call
   var subFolders = folder.list.filter(fol => fol.type === 'folder');
@@ -118,7 +134,7 @@ export default function Folder({ activeFolder, folder, handleFolderClick, formCl
                 {subFolders.length > 0 &&
                   foldersList.map((folder, index)=>{
                       return (
-                          <Folder key={index} folder={folder} darkmode={darkmode} handleFolderClick={handleFolderClick} formClick={formClick}/>
+                          <Folder key={index} folder={folder} handleFolderClick={handleFolderClick} formClick={formClick}/>
                       )
                 })}
             </div>

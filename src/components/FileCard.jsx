@@ -2,12 +2,20 @@ import { useState } from 'react';
 import parse from "html-react-parser";
 import { useDashboardContext } from "./DashboardContext";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 export default function FileCard({file}) {
-    const {darkmode} = useDashboardContext();
+    const {darkmode, setActiveNotebook, activeNotebook} = useDashboardContext();
 
     const [favourite, setFavourite] = useState(file.favourite);
     const [clickTime, setClickTime] = useState(null);
+    let isTrash = file.trash;
+    let isArchive = file.archive;
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
+
+    // console.log(file);
 
     const navigate = useNavigate();
     // console.log(file.createdAt);
@@ -45,6 +53,47 @@ export default function FileCard({file}) {
         setFavourite(!favourite);
     }
 
+    function decideAction(type) {
+        if(type === 'archive') {
+            // console.log('archive hua');
+            return {"archive": !isArchive}
+        } else if ( type === 'trash') {
+            // console.log('trash hua');
+            return {"trash": !isTrash}
+
+        }
+    }
+
+    async function handleNote(action) {
+        try {
+            setError(false);
+            setLoading(true);
+            const response = await axios.put(`/api/files/${file._id}`, decideAction(action));
+            // console.log(response);
+            setLoading(false);
+        } catch (error) {
+            console.error("error", error.message);
+            setError(true);
+            setLoading(false);
+        }
+        setActiveNotebook({...activeNotebook});
+    }
+
+    if (loading) {
+        return (
+            <div className="flex h-svh items-center m-auto">
+                <h1 className="text-5xl">Loading...</h1>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="flex h-svh items-center m-auto">
+                <h1 className="text-5xl">Something Went Wrong...</h1>
+            </div>
+        )
+    }
 
     return (
         <div className="files flex flex-col py-2 px-3 border border-[#00] mr-5 mb-5 rounded-xl select-none">
@@ -81,13 +130,13 @@ export default function FileCard({file}) {
                         className="h-4 cursor-pointer"
                         onClick={favouriteToggle}
                     />
-                    <img
+                    {/* <img
                         src={`/user-add${
                             darkmode ? "-white" : ""
                         }.png`}
                         alt="user-add"
                         className="h-4 cursor-pointer"
-                    />
+                    /> */}
                 </div>
                 <div className="flex space-x-3">
                     <img
@@ -96,6 +145,7 @@ export default function FileCard({file}) {
                         }.png`}
                         alt="archive"
                         className="h-4 cursor-pointer"
+                        onClick={()=>handleNote('archive')}
                     />
                     <img
                         src={`/trash${
@@ -103,6 +153,7 @@ export default function FileCard({file}) {
                         }.png`}
                         alt="trash"
                         className="h-4 cursor-pointer"
+                        onClick={()=>handleNote('trash')}
                     />
                 </div>
             </div>

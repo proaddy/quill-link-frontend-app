@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useDashboardContext } from "./DashboardContext";
 
 export default function FormComponent({activeFolder, type, action, showForm, setShowForm}) {
-    const { activeNotebook } = useDashboardContext();
+    const { notebook, setNotebook, activeNotebook, setActiveNotebook } = useDashboardContext();
     let userId = localStorage.getItem("userID");
 
     const [name, setName] = useState('');
@@ -26,7 +26,7 @@ export default function FormComponent({activeFolder, type, action, showForm, set
 
     const bodyGenerator = (type, response) => {
         if (type === 'file') {
-            return {"fileId": response.data[type]._id, "fileType": response.data[type].type, "userID" : userid}
+            return {"fileId": response.data[type]._id, "fileType": response.data[type].type}
         } else if (type === 'folder') {
             return {"fileId": response.data[type]._id, "fileType": response.data[type].type}
         } else if (type === 'notebook') {
@@ -39,10 +39,13 @@ export default function FormComponent({activeFolder, type, action, showForm, set
         // var response;
         if (action === 'create') {
             try {
+                let response;
                 setName('');
                 setIsError(false);
                 setIsLoading(true);
-                const response = await axios.post(`/api/${type}s`, {"name": name});
+                type === 'file' ? (response = await axios.post(`/api/${type}s`, {"name": name, "userID" : userid})) 
+                : (response = await axios.post(`/api/${type}s`, {"name": name}));
+                
                 // console.log('response', response);
                 console.log(`${type} created!!!`);
 
@@ -51,10 +54,13 @@ export default function FormComponent({activeFolder, type, action, showForm, set
                     // if adding folder in notebook
                     if (ifNotebookFolder) {
                         const saved = await axios.patch(`/api/notebooks/${activeNotebook._id}/add-into-notebook`, {"folderId": response.data[type]._id});
+                        setActiveNotebook({...activeNotebook, list: [...activeNotebook.list, response.data[type]._id]});
                         console.log("Added into notebook", saved);
                     } else {
                         // adding in general
                         const saved = await axios.patch(`/api/${parentType[type]}s/${type === 'notebook' ? userId : activeFolder._id}/add-into-${parentType[type]}`, bodyGenerator(type, response))
+                        // setNotebook(notebook);
+                        setActiveNotebook({...activeNotebook});
                         console.log(`Added in ${parentType[type]}`, saved);
                     }
                     setIsLoading(false);
@@ -63,7 +69,6 @@ export default function FormComponent({activeFolder, type, action, showForm, set
                     setIsError(true)
                     setIsLoading(false);
                 };
-
             } catch (error) {
                 console.log("error", error.message);
                 return;
@@ -95,6 +100,7 @@ export default function FormComponent({activeFolder, type, action, showForm, set
                 }
             })();
         }
+        // setActiveNotebook({...activeNotebook});
     }
 
     const formHandle = () => {
@@ -107,24 +113,23 @@ export default function FormComponent({activeFolder, type, action, showForm, set
             {
                 showForm && (
                     <div className='w-screen h-screen bg-[#0000007f] flex justify-center items-center absolute top-0 left-0 z-10'>
-                    <form onSubmit={(e)=>submitFolder(e)} className="relative bg-white w-80 h-64 rounded-lg p-5 flex flex-col justify-evenly">
-                        <img src="close.png" className="absolute h-6 w-6 right-2 top-2 cursor-pointer invert self-start" onClick={formHandle}/>
-                        <label htmlFor="name">Name: </label><input onChange={(e)=>setName(e.target.value)} value={name} placeholder={`Enter ${type} name`} name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
-                        { type === 'folder' && (
-                                <div className="flex items-center">
-                                <label htmlFor="n-fol">Notebook Folder: </label><input onChange={(e)=>setIfNotebookFolder(e.target.checked)} name="n-fol" id="n-fol" type="checkbox" className="ml-8"/>
-                                </div>
-                            )}
-                        {
-                            isLoading ? (<div className="h-10 w-3/5 self-center">Loading...</div>) : isError ? (<div className="h-10 w-3/5 self-center">Something Went Wrong...</div>) : (
-                                <button type="submit" 
-                                        className="self-center mb-5 w-3/5 h-10 text-white bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] rounded-lg font-bold"
-                                >{capitalize(action)} {capitalize(type)}</button>
-                            )
-                        }
-                       
-                    </form>
-                </div>
+                        <form onSubmit={(e)=>submitFolder(e)} className="comp-background relative bg-white w-80 h-64 rounded-lg p-5 flex flex-col justify-evenly">
+                            <img src="close.png" className="absolute h-6 w-6 right-2 top-2 cursor-pointer invert self-start" onClick={formHandle}/>
+                            <label htmlFor="name">Name: </label><input onChange={(e)=>setName(e.target.value)} value={name} placeholder={`Enter ${type} name`} name="name" id="name" type="text" className="border border-black rounded-md p-2"/><br />
+                            { type === 'folder' && action !== 'rename' && (
+                                    <div className="flex items-center">
+                                    <label htmlFor="n-fol">Notebook Folder: </label><input onChange={(e)=>setIfNotebookFolder(e.target.checked)} name="n-fol" id="n-fol" type="checkbox" className="ml-8"/>
+                                    </div>
+                                )}
+                            {
+                                isLoading ? (<div className="h-10 w-3/5 self-center">Loading...</div>) : isError ? (<div className="h-10 w-3/5 self-center">Something Went Wrong...</div>) : (
+                                    <button type="submit" 
+                                            className="self-center mb-5 w-3/5 h-10 text-white bg-gradient-to-r from-[#A3D1F1] to-[#1E5E7D] rounded-lg font-bold"
+                                    >{capitalize(action)} {capitalize(type)}</button>
+                                )
+                            }
+                        </form>
+                    </div>
                 )
             }
         </>

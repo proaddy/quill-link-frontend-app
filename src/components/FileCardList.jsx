@@ -32,7 +32,7 @@ export default function FileCardList({ activeFolder, searchText = "" }) {
                         }
                     })
                 )
-                setFileList(folderData);
+                setFileList(folderData.filter(fol => fol !== null));
               }
               setLoading(false);
             //   console.log(fileList);
@@ -65,12 +65,13 @@ export default function FileCardList({ activeFolder, searchText = "" }) {
         <div className="w-[100%]">
             {
                 fileList.filter((e) => {
+                    // console.log(e);
                     return e.name.toLowerCase().includes(searchText.toLowerCase());
-                    }).map((file, i) => {
+                    }).filter((e)=> {return e.archive !== true && e.trash !== true}).map((file, i) => {
                         return (
                             <FileCard key={i} file={file}/>
                         );
-                    })
+                })
             }
         </div>
     );

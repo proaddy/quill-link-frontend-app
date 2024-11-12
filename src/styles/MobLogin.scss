@@ -1,40 +1,3 @@
-// .mobileLoginContainer {
-//     // background-color: black;
-//     position: absolute;
-// }
-
-.mobileLoginContainer[login='1'] {
-    position: absolute;
-    height: 100%;
-    // animation: moveing 1s 1;
-    transition: 1s;
-    transform: translate(-100%, 0);
-}
-
-.mobileLoginContainer[login='2'] {
-    position: absolute;
-    height: 100%;
-    // animation: moveing 1s 1;
-    transition: 1.5s;
-    transform: translate(200%, 0);
-}
-
-#mobileOutputContent::-webkit-scrollbar {
-    display: none;
-}
-
-#mobileOutputContent {
-    scrollbar-width: none;
-}
-
-#mobilePagesList::-webkit-scrollbar {
-    display: none;
-}
-
-#mobilePagesList {
-    scrollbar-width: none;
-}
-
 :root {
     --background: #ffffff;
     --text-color: #000000;
@@ -56,18 +19,3 @@
 .ck .ck-content {
     height: 500px;
 }
-
-@keyframes delayedFadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-}
-
-.delayed-fade-in {
-    animation: delayedFadeIn 0.5s ease-in forwards;
-    animation-delay: 2s; /* Delay before starting the fade-in */
-}
-  

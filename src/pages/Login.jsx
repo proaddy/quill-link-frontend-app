@@ -17,21 +17,21 @@ export default function Login() {
             setError(false);
             setLoading(true);
             const response = await axios.get('/api/users');
-            console.log(response);
-            response.data.forEach(user => {
-                if (user.email === email && user.password === passwd) {
-                    setLoading(false);
-                    console.log("login successful");
-                    alert("Login Successfully");
-                    // store data
-                    localStorage.setItem("userID", user._id);
-                    localStorage.setItem("username", user.username);
+            const myUser = response.data.filter(usr => usr.email === email && usr.password === passwd);
+            // console.log(myUser);
+            if (myUser.length === 0) {
+                setLoading(false);
+                alert("No such user found!! Please check if email and password are correct");
+            } else {
+                setLoading(false);
+                alert("Logged In Successfully");
+                // storing data of the user
+                localStorage.setItem("userID", myUser[0]._id);
+                localStorage.setItem("username", myUser[0].username);
 
-                    navigate('/');
-                    return;
-                }
-            });
-            setLoading(false);
+                navigate('/');
+                return;
+            }
             setEmail('');
             setPasswd('');
         } catch (error) {

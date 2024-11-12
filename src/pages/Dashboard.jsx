@@ -30,14 +30,15 @@ export default function Dashboard() {
         navigate('/login', {state: {action: "notloggedin"}});
     }
 
-    const deleteNotebook = async () => {
+    const deleteNotebook = async (id) => {
         try {
             setError(false);
             setLoading(true);
             if(confirm("Do you want to delete notebook?? if yes then all the data inside the notebook will be inaccessible")) {
-                console.log(activeNotebook._id);
-              const allData = await axios.delete(`/api/notebooks/${activeNotebook._id}`);
+                console.log(id);
+              const allData = await axios.delete(`/api/notebooks/${id}`);
               console.log(allData);
+              setNotebook(notebook);
             }
             setLoading(false);
           } catch (error) {
@@ -91,15 +92,18 @@ export default function Dashboard() {
                     })
                 );
                 setNotebook(allNotebooks.filter(ele => ele != null));
+                // console.log(notebook);
+                // console.log(allNotebooks.filter(ele => ele != null));
                 setLoading(false);
             } catch (error) {
                 console.log(error);
             }
         })();
-    }, []);
+        // console.log(notebook);
+    }, [activeNotebook]);
 
     // context sharing
-    let dataToShare = {darkmode, activeNotebook};
+    let dataToShare = {darkmode, activeNotebook, setActiveNotebook};
 
     return (
         <DashboardContext.Provider value={dataToShare}>
@@ -228,7 +232,7 @@ export default function Dashboard() {
                                         <div className="absolute top-2 left-8 z-500">
                                             <ul className="rounded-lg bg-gray-900">
                                             <li className="px-4 py-1 hover:bg-gray-200 hover:text-black rounded-t-lg" onClick={()=>formClick('notebook', 'rename')}>Rename</li>
-                                            <li className="px-4 py-1 hover:bg-gray-200 hover:text-black rounded-b-lg" onClick={()=>deleteNotebook()}>Delete</li>
+                                            <li className="px-4 py-1 hover:bg-gray-200 hover:text-black rounded-b-lg" onClick={()=>deleteNotebook(e._id)}>Delete</li>
                                             </ul>
                                         </div>
                                     </div>

@@ -45,7 +45,7 @@ export default function Home() {
             try {
                 setError(false);
                 setLoading(true);
-                if(!allFolders) {return (<></>)};
+                // if(!allFolders) {return;};
                 const folderData = await Promise.all(
                     allFolders.map(async (folderID) => {
                         try {
@@ -61,13 +61,14 @@ export default function Home() {
                 setFoldersList(folderData.filter(folder => folder !== null));
                 setLoading(false);
             } catch (error) {
-                console.log("error", error);
+                console.log("error", error.message);
                 setError(true);
                 setLoading(false);
             } finally {
                 setLoading(false);
             }
         })();
+        // console.log(foldersList);
     }, [activeNotebook]);
 
     if(loading) {
@@ -79,11 +80,19 @@ export default function Home() {
     }
 
     if(error) {
-        return (
-            <div className="flex h-svh items-center m-auto">
-                <h1 className="text-5xl">Something Went Wrong...</h1>
-            </div>
-        )
+        if (!allFolders) {
+            return (
+                <div className="flex h-svh items-center m-auto">
+                    <h1 className="text-5xl">Select notebook...</h1>
+                </div>    
+            )
+        } else {
+            return (
+                <div className="flex h-svh items-center m-auto">
+                    <h1 className="text-5xl">Something Went Wrong...</h1>
+                </div>
+            )
+        }
     } 
     
   return (
