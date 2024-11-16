@@ -3,6 +3,7 @@ import parse from "html-react-parser";
 import { useDashboardContext } from "./DashboardContext";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+const backend = import.meta.env.VITE_BACKEND;
 
 export default function FileCard({file}) {
     const {darkmode, setActiveNotebook, activeNotebook} = useDashboardContext();
@@ -68,7 +69,7 @@ export default function FileCard({file}) {
         try {
             setError(false);
             setLoading(true);
-            const response = await axios.put(`/api/files/${file._id}`, decideAction(action));
+            const response = await axios.put(`${backend}/api/files/${file._id}`, decideAction(action));
             // console.log(response);
             setLoading(false);
         } catch (error) {

@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useDashboardContext } from './DashboardContext';
 // import '../styles/MobLogin.scss'
+const backend = import.meta.env.VITE_BACKEND;
 
 export default function Folder({activeFolder, folder, handleFolderClick, formClick }) {
 
@@ -13,16 +14,16 @@ export default function Folder({activeFolder, folder, handleFolderClick, formCli
       setLoading(true);
       if(confirm("Do you want to delete folder?? if yes then all the data inside the folder will be inaccessible")) {
         // console.log("waiting to be deleted", folder._id);
-        const allData = await axios.delete(`/api/folders/${folder._id}`);
+        const allData = await axios.delete(`${backend}/api/folders/${folder._id}`);
         console.log("Folder Deleted");
         if (allData){
           try {
-            const checkList = await axios.get(`/api/folders/${activeFolder._id}`);
+            const checkList = await axios.get(`${backend}/api/folders/${activeFolder._id}`);
             if(checkList.data && checkList.data.list.includes(folder._id)){
-              const response = await axios.patch(`/api/folders/${activeFolder._id}/remove-from-folder`, {itemId : folder._id, itemType: "folder"});
+              const response = await axios.patch(`${backend}/api/folders/${activeFolder._id}/remove-from-folder`, {itemId : folder._id, itemType: "folder"});
               if (response) {console.log('folder removed from folder')};
             } else {
-              const response = await axios.patch(`/api/notebooks/${activeNotebook._id}/rm-from-notebook`, {folderId: folder._id});
+              const response = await axios.patch(`${backend}/api/notebooks/${activeNotebook._id}/rm-from-notebook`, {folderId: folder._id});
               if (response) {console.log('folder removed from notebook')};
             }
           } catch (error) {
@@ -61,7 +62,7 @@ export default function Folder({activeFolder, folder, handleFolderClick, formCli
             const folderData = await Promise.all(
                 subFolders.map(async (folderID) => {
                     try {
-                        const response = await axios.get(`/api/folders/${folderID._id}`);
+                        const response = await axios.get(`${backend}/api/folders/${folderID._id}`);
                         return response.data;
                     } catch (error) {
                         console.log(`Failed to fetch data for folder ID ${folderID._id}`, error);

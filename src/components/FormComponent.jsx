@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useDashboardContext } from "./DashboardContext";
+const backend = import.meta.env.VITE_BACKEND;
 
 export default function FormComponent({activeFolder, type, action, showForm, setShowForm}) {
     const { notebook, setNotebook, activeNotebook, setActiveNotebook } = useDashboardContext();
@@ -43,8 +44,8 @@ export default function FormComponent({activeFolder, type, action, showForm, set
                 setName('');
                 setIsError(false);
                 setIsLoading(true);
-                type === 'file' ? (response = await axios.post(`/api/${type}s`, {"name": name, "userID" : userid})) 
-                : (response = await axios.post(`/api/${type}s`, {"name": name}));
+                type === 'file' ? (response = await axios.post(`${backend}/api/${type}s`, {"name": name, "userID" : userid})) 
+                : (response = await axios.post(`${backend}/api/${type}s`, {"name": name}));
                 
                 // console.log('response', response);
                 console.log(`${type} created!!!`);
@@ -53,12 +54,12 @@ export default function FormComponent({activeFolder, type, action, showForm, set
                 try {
                     // if adding folder in notebook
                     if (ifNotebookFolder) {
-                        const saved = await axios.patch(`/api/notebooks/${activeNotebook._id}/add-into-notebook`, {"folderId": response.data[type]._id});
+                        const saved = await axios.patch(`${backend}/api/notebooks/${activeNotebook._id}/add-into-notebook`, {"folderId": response.data[type]._id});
                         setActiveNotebook({...activeNotebook, list: [...activeNotebook.list, response.data[type]._id]});
                         console.log("Added into notebook", saved);
                     } else {
                         // adding in general
-                        const saved = await axios.patch(`/api/${parentType[type]}s/${type === 'notebook' ? userId : activeFolder._id}/add-into-${parentType[type]}`, bodyGenerator(type, response))
+                        const saved = await axios.patch(`${backend}/api/${parentType[type]}s/${type === 'notebook' ? userId : activeFolder._id}/add-into-${parentType[type]}`, bodyGenerator(type, response))
                         // setNotebook(notebook);
                         setActiveNotebook({...activeNotebook});
                         console.log(`Added in ${parentType[type]}`, saved);
@@ -81,13 +82,13 @@ export default function FormComponent({activeFolder, type, action, showForm, set
                     setIsLoading(true);
                     // console.log(type, typeof(type));
                     if (type === 'file') {
-                        const response = await axios.put(`/api/${type}s/${activeFolder._id}`, {"name":name});
+                        const response = await axios.put(`${backend}/api/${type}s/${activeFolder._id}`, {"name":name});
                         console.log("file", response);
                     } else if ( type === 'folder' ) {
-                        const response = await axios.put(`/api/${type}s/${activeFolder._id}`, {"name":name});
+                        const response = await axios.put(`${backend}/api/${type}s/${activeFolder._id}`, {"name":name});
                         console.log("folder", response);
                     } else if ( type === 'notebook' ) {
-                        const response = await axios.put(`/api/${type}s/${activeNotebook._id}`, {"name":name});
+                        const response = await axios.put(`${backend}/api/${type}s/${activeNotebook._id}`, {"name":name});
                         console.log("notebook", response);
                     }
                     console.log(`${type} renamed`);

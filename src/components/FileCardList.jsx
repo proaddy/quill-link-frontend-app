@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+const backend = import.meta.env.VITE_BACKEND;
 
 import FileCard from "./FileCard";
 
@@ -23,7 +24,7 @@ export default function FileCardList({ activeFolder, searchText = "" }) {
                 const folderData = await Promise.all(
                   subFile.map(async (fileId) => {
                         try {
-                            const response = await axios.get(`/api/files/${fileId._id}`);
+                            const response = await axios.get(`${backend}/api/files/${fileId._id}`);
                             return response.data;
                         } catch (error) {
                             console.log(`Failed to fetch data for folder ID ${fileId._id}`, error);
