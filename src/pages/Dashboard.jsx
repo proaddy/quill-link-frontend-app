@@ -5,6 +5,8 @@ import DashboardContext from "../components/DashboardContext";
 import FormComponent from "../components/FormComponent";
 
 import axios from "axios";
+require('dotenv').config();
+const backend = process.env.BACKEND;
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -36,7 +38,7 @@ export default function Dashboard() {
             setLoading(true);
             if(confirm("Do you want to delete notebook?? if yes then all the data inside the notebook will be inaccessible")) {
                 console.log(id);
-              const allData = await axios.delete(`/api/notebooks/${id}`);
+              const allData = await axios.delete(`${backend}/api/notebooks/${id}`);
               console.log(allData);
               setNotebook(notebook);
             }
@@ -75,13 +77,13 @@ export default function Dashboard() {
             try {
                 setError(false);
                 setLoading(true);
-                const userId = await axios.get(`/api/users/${userid}`);
+                const userId = await axios.get(`${backend}/api/users/${userid}`);
                 // console.log(userId.data.list);
                 const notebookList = userId.data.list;
                 const allNotebooks = await Promise.all(
                     notebookList.map(async (noteId) => {
                         try {
-                            const response = await axios.get(`/api/notebooks/${noteId}`);
+                            const response = await axios.get(`${backend}/api/notebooks/${noteId}`);
                             // console.log(response);
                             return response.data;
                         } catch (error) {

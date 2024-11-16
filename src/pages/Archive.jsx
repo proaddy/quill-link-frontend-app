@@ -3,6 +3,8 @@ import FileCard from '../components/FileCard';
 import Header from '../components/Header';
 import { useEffect, useState } from 'react';
 import { useDashboardContext } from '../components/DashboardContext';
+require('dotenv').config();
+const backend = process.env.BACKEND;
 
 export default function Archive() {
   const {activeNotebook, setActiveNotebook} = useDashboardContext();
@@ -18,7 +20,7 @@ export default function Archive() {
       try {
         setIsError(false);
         setIsLoading(true);
-        const files = await axios.get('/api/files');
+        const files = await axios.get(`${backend}/api/files`);
         setArchiveList(files.data.filter(file => file.userID === userid && file.archive === true));
         setIsLoading(false);
       } catch (error) {

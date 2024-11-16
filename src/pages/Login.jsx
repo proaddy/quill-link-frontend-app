@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from 'axios';
+require('dotenv').config();
+const backend = process.env.BACKEND;
 
 export default function Login() {
     const navigate = useNavigate();
@@ -16,7 +18,7 @@ export default function Login() {
         try {
             setError(false);
             setLoading(true);
-            const response = await axios.get('/api/users');
+            const response = await axios.get(`${backend}/api/users`);
             const myUser = response.data.filter(usr => usr.email === email && usr.password === passwd);
             // console.log(myUser);
             if (myUser.length === 0) {

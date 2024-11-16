@@ -8,6 +8,8 @@ import FormComponent from "../components/FormComponent";
 import Header from '../components/Header';
 
 import axios from 'axios';
+require('dotenv').config();
+const backend = process.env.BACKEND;
 
 export default function Home() {
     const { activeNotebook } = useDashboardContext();
@@ -49,7 +51,7 @@ export default function Home() {
                 const folderData = await Promise.all(
                     allFolders.map(async (folderID) => {
                         try {
-                            const response = await axios.get(`/api/folders/${folderID}`);
+                            const response = await axios.get(`${backend}/api/folders/${folderID}`);
                             return response.data;
                         } catch (error) {
                             console.log(`Failed to fetch data for folder ID ${folderID}`, error);

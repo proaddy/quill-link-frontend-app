@@ -3,6 +3,8 @@ import Header from '../components/Header'
 import FileCard from '../components/FileCard'
 import axios from 'axios'
 import { useDashboardContext } from '../components/DashboardContext'
+require('dotenv').config();
+const backend = process.env.BACKEND;
 
 export default function Trash() {
   const {activeNotebook, setActiveNotebook} = useDashboardContext();
@@ -18,7 +20,7 @@ export default function Trash() {
       const fil = await Promise.all(
         trashList.map(async (fileId) => {
           try {
-            const response = await axios.delete(`/api/files/${fileId._id}`);
+            const response = await axios.delete(`${backend}/api/files/${fileId._id}`);
             return response;
           } catch (error) {
             console.log(`Failed to fetch data for folder ID ${fileId._id}`, error);
@@ -36,7 +38,7 @@ export default function Trash() {
         setIsError(false);
         setIsLoading(true);
 
-        const files = await axios.get('/api/files');
+        const files = await axios.get(`${backend}/api/files`);
         // console.log(userid, files.data);
         // files.data.forEach(e=> e.userID === userid && console.log(e._id, e.trash));
         setTrashList(files.data.filter(file => {return file.userID === userid && file.trash === true}));

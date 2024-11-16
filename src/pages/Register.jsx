@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+require('dotenv').config();
+const backend = process.env.BACKEND;
 
 export default function Login() {
     const navigate = useNavigate();
@@ -19,7 +21,7 @@ export default function Login() {
             setError(false);
             setLoading(true);
             
-            const response = await axios.post('/api/users/', {"username":username, "name":fullname, "email":email, "password": passwd});
+            const response = await axios.post(`${backend}/api/users/`, {"username":username, "name":fullname, "email":email, "password": passwd});
             if (response) {
                 alert("User Created Successfully");
                 navigate('/login');

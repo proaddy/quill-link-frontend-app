@@ -5,6 +5,8 @@ import 'ckeditor5/ckeditor5.css';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+require('dotenv').config();
+const backend = process.env.BACKEND;
 
 export default function Editnote() {
 
@@ -18,7 +20,7 @@ export default function Editnote() {
     const handleClick = () => {
         (async () => {
             try {
-                const response = await axios.put(`/api/files/${id}`, {"desc": text, "name":name});
+                const response = await axios.put(`${backend}/api/files/${id}`, {"desc": text, "name":name});
                 if(response) {
                     console.log("File Updated Successfully");
                 }
@@ -38,7 +40,7 @@ export default function Editnote() {
             try {
                 setIsError(false);
                 setIsLoading(true);
-                const response = await axios.get(`/api/files/${id}`);
+                const response = await axios.get(`${backend}/api/files/${id}`);
                 if (!response) {
                     console.error("No such file found");
                     setIsError(true);
