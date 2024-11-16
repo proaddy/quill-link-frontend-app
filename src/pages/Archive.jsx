@@ -3,8 +3,9 @@ import FileCard from '../components/FileCard';
 import Header from '../components/Header';
 import { useEffect, useState } from 'react';
 import { useDashboardContext } from '../components/DashboardContext';
-require('dotenv').config();
-const backend = process.env.BACKEND;
+// require('dotenv').config();
+// const backend = process.env.REACT_APP_BACKEND;
+const backend = import.meta.env.BACKEND;
 
 export default function Archive() {
   const {activeNotebook, setActiveNotebook} = useDashboardContext();

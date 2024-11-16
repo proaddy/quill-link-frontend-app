@@ -3,8 +3,9 @@ import Header from '../components/Header'
 import FileCard from '../components/FileCard'
 import axios from 'axios'
 import { useDashboardContext } from '../components/DashboardContext'
-require('dotenv').config();
-const backend = process.env.BACKEND;
+// require('dotenv').config();
+// const backend = process.env.BACKEND;
+const backend = import.meta.env.BACKEND;
 
 export default function Trash() {
   const {activeNotebook, setActiveNotebook} = useDashboardContext();
