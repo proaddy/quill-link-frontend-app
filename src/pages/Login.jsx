@@ -19,7 +19,8 @@ export default function Login() {
         try {
             setError(false);
             setLoading(true);
-            const response = await axios.get(`${backend}/api/users`);
+            // const response = await axios.get(`${backend}/api/users`);
+            const response = await axios.get(`/api/users`);
             const myUser = response.data.filter(usr => usr.email === email && usr.password === passwd);
             // console.log(myUser);
             if (myUser.length === 0) {

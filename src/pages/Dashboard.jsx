@@ -39,7 +39,8 @@ export default function Dashboard() {
             setLoading(true);
             if(confirm("Do you want to delete notebook?? if yes then all the data inside the notebook will be inaccessible")) {
                 console.log(id);
-              const allData = await axios.delete(`${backend}/api/notebooks/${id}`);
+            //   const allData = await axios.delete(`${backend}/api/notebooks/${id}`);
+              const allData = await axios.delete(`/api/notebooks/${id}`);
               console.log(allData);
               setNotebook(notebook);
             }
