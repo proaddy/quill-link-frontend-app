@@ -7,7 +7,7 @@ import FormComponent from "../components/FormComponent";
 import axios from "axios";
 // require('dotenv').config();
 // const backend = process.env.REACT_APP_BACKEND;
-const backend = import.meta.env.BACKEND;
+const backend = import.meta.env.VITE_BACKEND;
 
 export default function Dashboard() {
     const navigate = useNavigate();

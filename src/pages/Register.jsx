@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 // require('dotenv').config();
 // const backend = process.env.BACKEND;
-const backend = import.meta.env.BACKEND;
+const backend = import.meta.env.VITE_BACKEND;
 
 export default function Login() {
     const navigate = useNavigate();

@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useDashboardContext } from '../components/DashboardContext'
 // require('dotenv').config();
 // const backend = process.env.BACKEND;
-const backend = import.meta.env.BACKEND;
+const backend = import.meta.env.VITE_BACKEND;
 
 export default function Trash() {
   const {activeNotebook, setActiveNotebook} = useDashboardContext();

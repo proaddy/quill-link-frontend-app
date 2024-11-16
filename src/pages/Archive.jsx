@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useDashboardContext } from '../components/DashboardContext';
 // require('dotenv').config();
 // const backend = process.env.REACT_APP_BACKEND;
-const backend = import.meta.env.BACKEND;
+const backend = import.meta.env.VITE_BACKEND;
 
 export default function Archive() {
   const {activeNotebook, setActiveNotebook} = useDashboardContext();
